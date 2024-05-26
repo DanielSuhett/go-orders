@@ -7,11 +7,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewOrder(productCategory string, productValue int, paymentMethod string, paymentValue int) (*Order, error) {
+func NewOrder(productCategory string, productValue int, paymentMethod string, paymentValue int) (Order, error) {
 	id := uuid.New()
 
 	if productCategory == "" || paymentMethod == "" || paymentValue == 0 || productValue == 0 {
-		return nil, fmt.Errorf("bad request args to new order")
+		return *new(Order), fmt.Errorf("bad request args to new order")
 	}
 
 	payment := &Payment{
@@ -31,20 +31,20 @@ func NewOrder(productCategory string, productValue int, paymentMethod string, pa
 		Labels:  make([]string, 0, 10),
 	}
 
-	return order, nil
+	return *order, nil
 }
 
-func Save(pool *pgxpool.Pool, order *Order) (*uuid.UUID, error) {
+func Save(pool *pgxpool.Pool, order Order) (uuid.UUID, error) {
 	orderRepository := newOrderRepository(pool)
 	orderService := newOrderService(orderRepository)
 
 	err := orderService.save(order)
 
 	if err != nil {
-		return nil, err
+		return order.Id, err
 	}
 
-	return &order.Id, nil
+	return order.Id, nil
 }
 
 func List(pool *pgxpool.Pool) ([]Order, error) {
@@ -54,7 +54,7 @@ func List(pool *pgxpool.Pool) ([]Order, error) {
 	return orderService.list()
 }
 
-func Get(pool *pgxpool.Pool, id uuid.UUID) (*Order, error) {
+func Get(pool *pgxpool.Pool, id uuid.UUID) (Order, error) {
 	orderRepository := newOrderRepository(pool)
 	orderService := newOrderService(orderRepository)
 

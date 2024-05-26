@@ -27,11 +27,11 @@ type Order struct {
 }
 
 type orderService struct {
-	repository *orderRepository
+	repository orderRepository
 }
 
-func newOrderService(repo *orderRepository) *orderService {
-	return &orderService{repo}
+func newOrderService(repo orderRepository) orderService {
+	return orderService{repo}
 }
 
 func markFragileProducts(order *Order) {
@@ -59,24 +59,20 @@ func setDiscounts(order *Order) {
 	}
 }
 
-func (os orderService) save(order *Order) error {
-	markFragileProducts(order)
-	markFreeShipping(order)
-	markGift(order)
+func (os orderService) save(order Order) error {
+	markFragileProducts(&order)
+	markFreeShipping(&order)
+	markGift(&order)
 
-	setDiscounts(order)
+	setDiscounts(&order)
 
-	return os.repository.Save(order)
+	return os.repository.Save(&order)
 }
 
 func (os orderService) list() ([]Order, error) {
-	l, err := os.repository.list()
-
-	return l, err
+	return os.repository.list()
 }
 
-func (os orderService) get(id uuid.UUID) (*Order, error) {
-	o, err := os.repository.get(id)
-
-	return o, err
+func (os orderService) get(id uuid.UUID) (Order, error) {
+	return os.repository.get(id)
 }

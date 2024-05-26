@@ -64,7 +64,7 @@ func TestSave(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			no, err = order.Get(pool, *id)
+			no, err = order.Get(pool, id)
 
 			if err != nil {
 				t.Fatal(err)

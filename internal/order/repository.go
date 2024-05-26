@@ -14,8 +14,8 @@ type orderRepository struct {
 	pool *pgxpool.Pool
 }
 
-func newOrderRepository(pool *pgxpool.Pool) *orderRepository {
-	return &orderRepository{pool}
+func newOrderRepository(pool *pgxpool.Pool) orderRepository {
+	return orderRepository{pool}
 }
 
 func (or orderRepository) Save(order *Order) error {
@@ -78,7 +78,7 @@ func (or orderRepository) list() ([]Order, error) {
 	return orders, nil
 }
 
-func (or orderRepository) get(id uuid.UUID) (*Order, error) {
+func (or orderRepository) get(id uuid.UUID) (Order, error) {
 	rows := or.pool.QueryRow(context.Background(), "SELECT * FROM orders WHERE id = $1", id)
 	var order Order
 
@@ -92,8 +92,8 @@ func (or orderRepository) get(id uuid.UUID) (*Order, error) {
 	)
 
 	if err != nil {
-		return nil, err
+		return order, err
 	}
 
-	return &order, nil
+	return order, nil
 }
